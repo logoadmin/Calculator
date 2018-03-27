@@ -2,10 +2,13 @@ package logo.calculator;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
+
+import java.util.Arrays;
 import java.util.LinkedList;
 
 
@@ -18,15 +21,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static String infix="0" ;
-    public int top=-1;
-    public int top_another=-1;
     public int maxs=100;
     String[] Stack=new String [maxs] ;
     String[] Stack_another=new String[maxs];
-    public String opd2;
-    public String[] opd3;
-    public double[] opd4;
-    public double[] used;
     public double e=0;
     private static double cal(char op, double p1, double p2) {
         switch(op) {
@@ -34,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
             case '-': return p1 - p2;
             case '*': return p1 * p2;
             case '/': return p1 / p2;
+            case '%': return p1 % p2;
             default:  throw new ArithmeticException(op + " not defined");
         }
     }
@@ -41,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     public static double eval(String expr) {
         LinkedList<Double> stack = new LinkedList<>();
         for(char c : Infix.toPostfix(expr).toCharArray()) {
-            if("+-*/".indexOf(c) != -1) {
+            if("+-*/%".indexOf(c) != -1) {
                 double p2 = stack.removeLast();
                 double p1 = stack.removeLast();
                 stack.add(cal(c, p1, p2));
@@ -121,9 +119,36 @@ public class MainActivity extends AppCompatActivity {
     }
 
     */
-
+    protected void Back(View V){
+        EditText Ex=(EditText) findViewById(R.id.show);
+        infix= Ex.getText().toString();
+        if(infix.length()==1){
+            infix = "0";
+            Ex.setText("" + infix);
+        }
+        else {
+            infix = infix.substring(0, infix.length() - 1);
+            Ex.setText("" + infix);
+        }
+    }
+    protected void Clear(View V){
+        EditText Ex=(EditText) findViewById(R.id.show);
+        Ex.setText("0");
+        e=0;
+        infix="";
+    }
+    public int x=0;
     protected void KeyInput(View V) {
         Button bt=(Button) V;
+        if(x==1) {
+            infix = infix.substring(0, infix.length() - 1);
+            if ("123456789".indexOf((String) bt.getText()) != -1) {
+                Clear(V);
+            }
+            x = 0;
+        }
+
+
         //opd1=opd1*10+(new Integer().toString())).intValue();
         infix=infix+ (String) bt.getText();
         EditText tx=(EditText) findViewById(R.id.show);
@@ -134,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
            e=eval(str);
             EditText tx1=(EditText) findViewById(R.id.show);
             tx1.setText(""+e);
+            x=1;
         }
 
         //e=scan(opd3,opd1,opd4,opd2);
