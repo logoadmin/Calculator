@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     public int maxs=100;
     String[] Stack=new String [maxs] ;
     String[] Stack_another=new String[maxs];
+    double[] p=new double[10];
     public double e=0;
     private static double cal(char op, double p1, double p2) {
         switch(op) {
@@ -36,16 +37,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public static double eval(String expr) {
-        LinkedList<Double> stack = new LinkedList<>();
+    public static String eval(String expr,double[] opd) {
+        double [] opd2=new double[opd.length+1];
+        opd2[opd.length]=0;
+        for(int i=0;i<opd.length;i++) {
+            opd2[i] = opd[i];
+        }
+        LinkedList<String> stack = new LinkedList<>();
         for(char c : Infix.toPostfix(expr).toCharArray()) {
             if("+-*/%".indexOf(c) != -1) {
-                double p2 = stack.removeLast();
-                double p1 = stack.removeLast();
-                stack.add(cal(c, p1, p2));
-            } else { stack.add(Double.parseDouble(String.valueOf(c))); }
+                double p2 = opd2[Integer.parseInt(stack.removeLast())];
+                double p1 = opd2[Integer.parseInt(stack.removeLast())];
+                opd2[opd.length]=cal(c, p1, p2);
+                stack.add(String.valueOf(opd.length));
+
+            } else { stack.add(String.valueOf(c));
+            }
         }
-        return stack.getLast();
+        return String.valueOf(opd2[Integer.parseInt(stack.getLast())]);
     }
 
 
@@ -135,14 +144,22 @@ public class MainActivity extends AppCompatActivity {
         EditText Ex=(EditText) findViewById(R.id.show);
         Ex.setText("0");
         e=0;
-        infix="";
+        infix="0";
     }
     public int x=0;
+
+    double[] functionparse(String[] opd3){//將陣列轉換數字型別 ok
+        double[] opd4=new double[opd3.length];
+        for(int i=0;i<opd3.length;i++){
+            opd4[i]=Double.parseDouble(opd3[i]);
+        }
+        return opd4;
+    }
     protected void KeyInput(View V) {
         Button bt=(Button) V;
         if(x==1) {
             infix = infix.substring(0, infix.length() - 1);
-            if ("123456789".indexOf((String) bt.getText()) != -1) {
+            if ("1234567890".indexOf((String) bt.getText()) != -1) {
                 Clear(V);
             }
             x = 0;
@@ -153,12 +170,37 @@ public class MainActivity extends AppCompatActivity {
         infix=infix+ (String) bt.getText();
         EditText tx=(EditText) findViewById(R.id.show);
         tx.setText(""+infix);
+        if(infix.substring(0)=="0"){
+            infix=infix.substring(1,infix.length());
+            infix = infix.substring(0, infix.length() - 1);
+        }
 
        if (infix.indexOf("=") != -1) {
-           String str=infix.substring(0,infix.length()-1);
-           e=eval(str);
+           String str=infix.substring(1,infix.length()-1);
+           String xs;
+           String[] opd2;
+           double[] opd4;
+           String[] opd3;
+           opd2=str.split("[^-/\\*\\+]");
+           opd3=str.split("\\+|-|\\*|/");
+           opd4=functionparse(opd3);
+           String str2="";
+           int n=opd2.length;
+           int tt=0,ttt=0;
+           while(n>0){
+               if(opd2[tt].equals("")){}
+               else {
+                   str2 = str2 + ttt + opd2[tt];
+                   ttt++;
+               }
+               tt++;
+               n--;
+           }
+           str2 = str2 + ttt;
+
+           xs=eval(str2,opd4);
             EditText tx1=(EditText) findViewById(R.id.show);
-            tx1.setText(""+e);
+            tx1.setText(""+xs);
             x=1;
         }
 
